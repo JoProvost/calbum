@@ -23,21 +23,19 @@ class CalendarAlbumFilter(PictureFilter):
         self.events = events
         self.albums_path = albums_path
  
-    def best_album_for(self, picture):
+    def albums_for(self, picture):
         for event in self.events:
             if picture.timestamp() in event.time_period():
-                album = self.album_factory.from_event(event, self.albums_path)
-                return album
+                yield self.album_factory.from_event(event, self.albums_path)
 
     def move_picture(self, picture):
-        album = self.best_album_for(picture)
+        album = next(self.albums_for(picture), None)
         if album:
             album.timeline().move_picture(picture)
 
     def link_picture(self, picture):
-        album = self.best_album_for(picture)
-        if album:
-            album.timeline().move_picture(picture)
+        for album in self.albums_for(picture):
+            album.timeline().link_picture(picture)
 
 
 def link_in_albums(inbox_path, albums_path, calendar_url):
