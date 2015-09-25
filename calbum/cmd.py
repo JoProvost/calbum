@@ -15,7 +15,8 @@
 import argparse
 
 from calbum.core.model import TimeLine
-from calbum.filters import timeline_filter
+from calbum.filters import timeline, album
+from calbum.sources import image, calendar
 
 
 def main():
@@ -25,14 +26,26 @@ def main():
         description='Calendar-based photo organiser (only timeline for now).')
 
     parser.add_argument('--inbox',
-                        help='The path of the inbox directory.',
+                        help='The path of the inbox directory. '
+                             '(default: ./inbox)',
                         metavar='path',
-                        required=True)
+                        default='./inbox')
 
     parser.add_argument('--timeline',
-                        help='The path of the timeline directory.',
+                        help='The path of the timeline directory. '
+                             '(default: ./timeline)',
                         metavar='path',
-                        required=True)
+                        default='./timeline')
+
+    parser.add_argument('--album',
+                        help='The path of the album directory. '
+                             '(default: ./album)',
+                        metavar='path',
+                        default='./album')
+
+    parser.add_argument('--calendar',
+                        help='The url of the album calendar. (ical)',
+                        metavar='url')
 
     parser.add_argument('--date-format',
                         help='The format to use for timestamps.',
@@ -40,10 +53,15 @@ def main():
 
     args = vars(parser.parse_args())
 
-    if 'date_format' in args:
-        TimeLine.pictures_path_format = args['date_format']
+    TimeLine.pictures_path_format = args['date_format']
 
-    timeline_filter.move_in_timeline(
-        inbox_path=args['inbox'],
-        timeline_path=args['timeline']
-    )
+    filters = [timeline.TimelineFilter(args['timeline']).move_picture]
+    if args['calendar']:
+        events = calendar.get_events_from_url(url=args['calendar'])
+        filters.append(album.CalendarAlbumFilter(
+            albums_path=args['album'],
+            events=events).link_picture)
+
+    for picture in image.get_pictures_from_path(args['inbox']):
+        for action in filters:
+            action(picture)

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from datetime import datetime
+from datetime import datetime, date
 
 from hamcrest import assert_that, is_
 from icalendar import Event
@@ -90,3 +90,65 @@ END:VEVENT"""))
 
         assert_that(datetime(2015, 10, 15, 11) in etp, is_(False))
 
+    def test_timestamp_in_timeless_event(self):
+        etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
+DTSTART;VALUE=DATE:20151113
+DTEND;VALUE=DATE:20151114
+DTSTAMP:20150925T034508Z
+UID:9E783D57-BF34-47B0-86D8-FE6FD83B05A2
+SEQUENCE:0
+CREATED:20150922T191411Z
+LAST-MODIFIED:20150922T191823Z
+END:VEVENT"""))
+
+        assert_that(etp.begin(), is_(date(2015, 11, 13)))
+        assert_that(etp.end(), is_(date(2015, 11, 14)))
+
+        assert_that(datetime(2015, 11, 12, 12) in etp, is_(False))
+        assert_that(datetime(2015, 11, 13, 12) in etp, is_(True))
+        assert_that(datetime(2015, 11, 14, 9) in etp, is_(False))
+
+    def test_timestamp_in_byday_event(self):
+        etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
+DTSTART;TZID=America/Toronto:20150602T183000
+DTEND;TZID=America/Toronto:20150602T193000
+DTSTAMP:20150925T035639Z
+SEQUENCE:0
+EXDATE;TZID=America/Toronto:20150827T183000
+CREATED:20150519T235325Z
+LAST-MODIFIED:20150706T153006Z
+RRULE:FREQ=WEEKLY;UNTIL=20150827T223000Z;BYDAY=TU,TH;WKST=SU
+END:VEVENT"""))
+
+        assert_that(etp.begin(), is_(datetime(2015, 06, 02, 18, 30, tzinfo=pytz.timezone('Etc/GMT+4'))))
+        assert_that(etp.end(), is_(datetime(2015, 06, 02, 19, 30, tzinfo=pytz.timezone('Etc/GMT+4'))))
+
+        assert_that(datetime(2015, 11, 12, 12) in etp, is_(False))
+
+    def test_timestamp_in_yearly_event(self):
+        etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
+DTSTART;VALUE=DATE:20120702
+DTEND;VALUE=DATE:20120703
+DTSTAMP:20150925T043431Z
+SEQUENCE:2
+CREATED:20110922T001534Z
+LAST-MODIFIED:20150706T153006Z
+RRULE:FREQ=YEARLY
+END:VEVENT"""))
+
+        assert_that(etp.begin(), is_(date(2012, 07, 02)))
+        assert_that(etp.end(), is_(date(2012, 07, 03)))
+
+        assert_that(datetime(2012, 07, 02, 12) in etp, is_(True))
+
+    def test_timestamp_in_event_without_an_end(self):
+        etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
+DTSTART:20130921T230000Z
+DTSTAMP:20150925T051339Z
+SEQUENCE:1
+CREATED:20130903T183447Z
+LAST-MODIFIED:20130916T165029Z
+END:VEVENT"""))
+
+        assert_that(etp.begin(), is_(datetime(2013, 9, 21, 23, tzinfo=pytz.utc)))
+        assert_that(datetime(2013, 9, 21, 23) in etp, is_(False))

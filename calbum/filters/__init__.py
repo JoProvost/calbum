@@ -12,3 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+class PictureFilter(object):
+
+    def move_picture(self, picture):
+        raise NotImplementedError()
+
+    def link_picture(self, picture):
+        raise NotImplementedError()

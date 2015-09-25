@@ -13,9 +13,10 @@
 # limitations under the License.
 
 import urllib2
+import datetime
+
 import dateutil
 import dateutil.rrule
-
 import icalendar
 
 from calbum.core.model import TimePeriod, Event
@@ -34,30 +35,37 @@ class CalendarTimePeriod(TimePeriod):
         return self.event['dtstart'].dt
 
     def end(self):
-        return self.event['dtend'].dt
+        return self.event.get('dtend', self.event['dtstart']).dt
 
     def recurrent(self):
         if self.rule is None:
             if 'rrule' in self.event:
-                rrulestr = '\n'.join(
-                    ['RRULE:' + self.event['rrule'].to_ical()] +
-                    ['EXDATE:'+s.to_ical() for s in self.event.get('exdate', [])])
-                self.rule = dateutil.rrule.rrulestr(rrulestr, dtstart=self.begin())
+                self.rule = dateutil.rrule.rruleset()
+                self.rule.rrule(dateutil.rrule.rrulestr(
+                    self.event['rrule'].to_ical(), dtstart=self.begin()))
+                for dt in get_datetime_list(self.event.get('exdate', [])):
+                    self.rule.exdate(dt)
         return self.rule
 
     def __contains__(self, timestamp):
         start = self.begin()
         end = self.end()
-        if timestamp.tzinfo and start.tzinfo:
-            localized_timestamp = start.tzinfo.localize(timestamp)
-        else:
-            localized_timestamp = timestamp.replace(tzinfo=start.tzinfo)
+        if hasattr(start, 'tzinfo'):
+            if timestamp.tzinfo and start.tzinfo:
+                timestamp = start.tzinfo.localize(timestamp)
+            else:
+                timestamp = timestamp.replace(tzinfo=start.tzinfo)
         rule = self.recurrent()
+
         if rule is not None:
             delta = end - start
-            start = rule.before(localized_timestamp, True) or start
+            start = rule.before(timestamp, True) or start
             end = start + delta
-        return start <= localized_timestamp <= end
+
+        if not hasattr(start, 'tzinfo'):
+            timestamp = datetime.date(timestamp.year, timestamp.month, timestamp.day)
+
+        return start <= timestamp < end
 
 
 class CalendarEvent(Event):
@@ -65,18 +73,28 @@ class CalendarEvent(Event):
         """
         :type event: icalendar.Event
         """
-        self.event = event
+        self._event = event
+        self._time_period = CalendarTimePeriod(self._event)
 
     def title(self):
-        return self.event['summary']
+        return self._event['summary']
 
     def time_period(self):
-        if not hasattr(self, '_time_period'):
-            self._time_period = self._time_period or CalendarTimePeriod(self.event)
         return self._time_period
 
     def location(self):
         raise NotImplementedError()
+
+
+def get_datetime_list(obj):
+    if not isinstance(obj, list):
+        obj = [obj]
+    for item in obj:
+        if hasattr(item, 'dts'):
+            for dt in item.dts:
+                yield dt.dt
+        else:
+            yield item.dt
 
 
 def get_events_from_url(url):

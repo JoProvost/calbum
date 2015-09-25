@@ -1,8 +1,14 @@
 language: python
 python:
-  - "2.7"
-
+- '2.7'
 install:
-  - 'pip install tox'
-
+- pip install tox
 script: tox -r
+deploy:
+  provider: pypi
+  user: JoProvost
+  password:
+    secure: OsfDHmgpBse/tHGV/SPgkRkJzFu0Z3vLw85vN6JAe/G7Ga7GH+C4bL8uK4XrMKVWzWadsQ0gcB2FWR4s7pOVdspiRJeQv57/8RL6+5Rg8AYSe8J6B8iW/3iGovzwl1e6nhKepBd9gq173Rjezg9k4qP7UoO1pZ6TRZcVJPYPTAIjvSE9o6G/gKFl0U4nLd2LaAqrnPXTCl5Z40MJ6kFaR3fK8wpK1iyJmoVF99ZfS2N5TVy0XTnPuYrPUHqaZPXL9iSPf51GIn7JIYfr0ygKTnjhPq5mIa8Wcdd0h+uQE3C1Vx8EwfTxWBLC1CaySNGPo6W6Kd8hF+fLkzkWw8ls0Q7JeUwtDZr8Gvol3P+0wgtxW1KbOQ5MSB9LDr7nKrjuprskMY+Nmc0y2wj4p7R10eL3pbuwnti7ltdZOfXLiHtyMj88bSW1rMDv856pdsGqiZMDgvcj53SXZ3LuXPjixQhXUPevpUWZaUtvC+kWJJnWEaTRZ07YOR9bfjmb3XcP8upYT1l+pBUi/VO01IfD1xFLwjn2lTWRmo0/ATDcuVDCvNBrbr/uK3zmu2yj5sMLeU5mSzWKvEro5hKisntGloNB62JnkNEydvsG39Cwhid/ho0XpwUfddKvlUmZ+HdsvTeKvokPZzRbauH0gO8WG1IgHIaWqYud29siW6EpV+A=
+  on:
+    tags: true
+    repo: JoProvost/calbum

@@ -10,3 +10,4 @@ ChangeLog
 .eggs/
 .venv
 dist/
+out/

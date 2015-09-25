@@ -59,6 +59,7 @@ class PicturesCollection(FileSystemElement):
                 if fnmatch(name, '*.jpg') or fnmatch(name, '*.jpeg'):
                     yield self.pictures_factory(os.path.join(sub_path, name))
 
+
 # noinspection PyAbstractClass
 class TimeLine(PicturesCollection):
     pictures_path_format = "%Y/%Y-%m/%Y-%m-%d-%H-%M-%S.jpeg"
@@ -95,6 +96,12 @@ class Album(FileSystemElement):
         if not hasattr(self, '_timeline'):
             self._timeline = self.timeline_factory(path=self.path())
         return self._timeline
+
+    @classmethod
+    def from_event(cls, event, root_path):
+        file_safe_title = ''.join(
+            c for c in event.title() if c not in '\/:*?<>|').strip(' .')
+        return cls(os.path.join(root_path, file_safe_title))
 
 
 class Event(object):

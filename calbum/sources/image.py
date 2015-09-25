@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from datetime import datetime
 
 import exifread
 
-from calbum.core.model import Picture, TimeLine, PicturesCollection
+from calbum.core.model import Picture, TimeLine, PicturesCollection, Album
 
 
 class ExifPicture(Picture):
@@ -53,6 +54,10 @@ class ExifPicturesCollection(PicturesCollection):
 
 class ExifTimeLine(TimeLine, ExifPicturesCollection):
     pass
+
+
+class ExifAlbum(Album):
+    timeline_factory = ExifTimeLine
 
 
 def get_pictures_from_path(path):
