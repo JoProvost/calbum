@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 import urllib2
 import datetime
 
@@ -50,12 +52,10 @@ class CalendarTimePeriod(TimePeriod):
     def __contains__(self, timestamp):
         start = self.begin()
         end = self.end()
-        if hasattr(start, 'tzinfo'):
-            if timestamp.tzinfo and start.tzinfo:
-                timestamp = start.tzinfo.localize(timestamp)
-            else:
-                timestamp = timestamp.replace(tzinfo=start.tzinfo)
         rule = self.recurrent()
+
+        if not hasattr(start, 'tzinfo'):
+            timestamp = timestamp.replace(tzinfo=None)
 
         if rule is not None:
             delta = end - start
@@ -85,6 +85,34 @@ class CalendarEvent(Event):
     def location(self):
         raise NotImplementedError()
 
+    def save_to(self, path):
+        event_path = os.path.join(path, 'event.ics')
+        with open(event_path, 'w') as f:
+            cal = icalendar.Calendar()
+            cal.add_component(self._event)
+            f.write(cal.to_ical())
+
+    @classmethod
+    def load_from_file(cls, path):
+        with open(path, 'r') as f:
+            return cls.load_from_stream(f)
+
+    @classmethod
+    def load_from_url(cls, url):
+        response = urllib2.urlopen(url)
+        if response.code != 200:
+            raise Exception("Something went wrong. HTTP response code: %s" % response.code)
+        return cls.load_from_stream(response)
+
+    @classmethod
+    def load_from_stream(cls, stream):
+        events=[]
+        cal = icalendar.Calendar.from_ical(stream.read().decode('UTF-8'))
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                events.append(cls(event=component))
+        return events
+
 
 def get_datetime_list(obj):
     if not isinstance(obj, list):
@@ -95,20 +123,3 @@ def get_datetime_list(obj):
                 yield dt.dt
         else:
             yield item.dt
-
-
-def get_events_from_url(url):
-    response = urllib2.urlopen(url)
-    if response.code != 200:
-        raise Exception("Something went wrong. HTTP response code: %s" % response.code)
-    ical_data = response.read().decode('UTF-8')
-    return get_events_from_ical(ical_data)
-
-
-def get_events_from_ical(ical_data):
-    events_tp = []
-    cal = icalendar.Calendar.from_ical(ical_data)
-    for component in cal.walk():
-        if component.name == "VEVENT":
-            events_tp.append(CalendarEvent(component))
-    return events_tp

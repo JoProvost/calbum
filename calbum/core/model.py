@@ -16,6 +16,7 @@
 from datetime import datetime
 from fnmatch import fnmatch
 import os
+from dateutil import tz
 
 
 class FileSystemElement(object):
@@ -41,12 +42,16 @@ class FileSystemElement(object):
 
 # noinspection PyAbstractClass
 class Picture(FileSystemElement):
+    time_zone = tz.gettz()
 
     def location(self):
         raise NotImplemented()
 
     def timestamp(self):
-        return datetime.fromtimestamp(os.path.getctime(self.path()))
+        return datetime.fromtimestamp(
+            timestamp=os.path.getctime(self.path()),
+            tz=self.time_zone
+        )
 
 
 # noinspection PyAbstractClass
@@ -113,6 +118,9 @@ class Event(object):
         raise NotImplementedError()
 
     def location(self):
+        raise NotImplementedError()
+
+    def save_to(self, path):
         raise NotImplementedError()
 
 

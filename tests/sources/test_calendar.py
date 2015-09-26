@@ -35,11 +35,11 @@ END:VEVENT"""))
         assert_that(etp.begin(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
         assert_that(etp.end(), is_(datetime(2015, 10, 10, 12, tzinfo=pytz.utc)))
 
-        assert_that(datetime(2015, 10, 10, 11) in etp, is_(True))
+        assert_that(datetime(2015, 10, 10, 11, tzinfo=pytz.utc) in etp, is_(True))
 
-        assert_that(datetime(2015, 10, 10, 9) in etp, is_(False))
+        assert_that(datetime(2015, 10, 10, 9, tzinfo=pytz.utc) in etp, is_(False))
 
-        assert_that(datetime(2015, 10, 10, 13) in etp, is_(False))
+        assert_that(datetime(2015, 10, 10, 13, tzinfo=pytz.utc) in etp, is_(False))
 
     def test_timestamp_in_simple_recursive_event(self):
         etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
@@ -53,16 +53,16 @@ END:VEVENT"""))
         assert_that(etp.begin(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
         assert_that(etp.end(), is_(datetime(2015, 10, 10, 12, tzinfo=pytz.utc)))
 
-        assert_that(datetime(2015, 10, 10, 11) in etp, is_(True))
-        assert_that(datetime(2015, 10, 10, 9) in etp, is_(False))
-        assert_that(datetime(2015, 10, 10, 13) in etp, is_(False))
+        assert_that(datetime(2015, 10, 10, 11, tzinfo=pytz.utc) in etp, is_(True))
+        assert_that(datetime(2015, 10, 10, 9, tzinfo=pytz.utc) in etp, is_(False))
+        assert_that(datetime(2015, 10, 10, 13, tzinfo=pytz.utc) in etp, is_(False))
 
 
-        assert_that(datetime(2015, 10, 11, 11) in etp, is_(True))
-        assert_that(datetime(2015, 10, 11, 9) in etp, is_(False))
-        assert_that(datetime(2015, 10, 11, 13) in etp, is_(False))
+        assert_that(datetime(2015, 10, 11, 11, tzinfo=pytz.utc) in etp, is_(True))
+        assert_that(datetime(2015, 10, 11, 9, tzinfo=pytz.utc) in etp, is_(False))
+        assert_that(datetime(2015, 10, 11, 13, tzinfo=pytz.utc) in etp, is_(False))
 
-        assert_that(datetime(2015, 10, 12, 11) in etp, is_(False))
+        assert_that(datetime(2015, 10, 12, 11, tzinfo=pytz.utc) in etp, is_(False))
 
     def test_timestamp_in_recursive_event_with_exceptions(self):
         etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
@@ -78,17 +78,17 @@ END:VEVENT"""))
         assert_that(etp.begin(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
         assert_that(etp.end(), is_(datetime(2015, 10, 10, 12, tzinfo=pytz.utc)))
 
-        assert_that(datetime(2015, 10, 10, 11) in etp, is_(True))
-        assert_that(datetime(2015, 10, 10, 9) in etp, is_(False))
-        assert_that(datetime(2015, 10, 10, 13) in etp, is_(False))
+        assert_that(datetime(2015, 10, 10, 11, tzinfo=pytz.utc) in etp, is_(True))
+        assert_that(datetime(2015, 10, 10, 9, tzinfo=pytz.utc) in etp, is_(False))
+        assert_that(datetime(2015, 10, 10, 13, tzinfo=pytz.utc) in etp, is_(False))
 
-        assert_that(datetime(2015, 10, 11, 11) in etp, is_(False))
-        assert_that(datetime(2015, 10, 12, 11) in etp, is_(False))
-        assert_that(datetime(2015, 10, 13, 11) in etp, is_(False))
+        assert_that(datetime(2015, 10, 11, 11, tzinfo=pytz.utc) in etp, is_(False))
+        assert_that(datetime(2015, 10, 12, 11, tzinfo=pytz.utc) in etp, is_(False))
+        assert_that(datetime(2015, 10, 13, 11, tzinfo=pytz.utc) in etp, is_(False))
 
-        assert_that(datetime(2015, 10, 14, 11) in etp, is_(True))
+        assert_that(datetime(2015, 10, 14, 11, tzinfo=pytz.utc) in etp, is_(True))
 
-        assert_that(datetime(2015, 10, 15, 11) in etp, is_(False))
+        assert_that(datetime(2015, 10, 15, 11, tzinfo=pytz.utc) in etp, is_(False))
 
     def test_timestamp_in_timeless_event(self):
         etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
@@ -104,9 +104,9 @@ END:VEVENT"""))
         assert_that(etp.begin(), is_(date(2015, 11, 13)))
         assert_that(etp.end(), is_(date(2015, 11, 14)))
 
-        assert_that(datetime(2015, 11, 12, 12) in etp, is_(False))
-        assert_that(datetime(2015, 11, 13, 12) in etp, is_(True))
-        assert_that(datetime(2015, 11, 14, 9) in etp, is_(False))
+        assert_that(datetime(2015, 11, 12, 12, tzinfo=pytz.utc) in etp, is_(False))
+        assert_that(datetime(2015, 11, 13, 12, tzinfo=pytz.utc) in etp, is_(True))
+        assert_that(datetime(2015, 11, 14, 9, tzinfo=pytz.utc) in etp, is_(False))
 
     def test_timestamp_in_byday_event(self):
         etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
@@ -123,7 +123,7 @@ END:VEVENT"""))
         assert_that(etp.begin(), is_(datetime(2015, 06, 02, 18, 30, tzinfo=pytz.timezone('Etc/GMT+4'))))
         assert_that(etp.end(), is_(datetime(2015, 06, 02, 19, 30, tzinfo=pytz.timezone('Etc/GMT+4'))))
 
-        assert_that(datetime(2015, 11, 12, 12) in etp, is_(False))
+        assert_that(datetime(2015, 11, 12, 12, tzinfo=pytz.timezone('Etc/GMT+4')) in etp, is_(False))
 
     def test_timestamp_in_yearly_event(self):
         etp = CalendarTimePeriod(Event.from_ical("""BEGIN:VEVENT
@@ -151,4 +151,4 @@ LAST-MODIFIED:20130916T165029Z
 END:VEVENT"""))
 
         assert_that(etp.begin(), is_(datetime(2013, 9, 21, 23, tzinfo=pytz.utc)))
-        assert_that(datetime(2013, 9, 21, 23) in etp, is_(False))
+        assert_that(datetime(2013, 9, 21, 23, tzinfo=pytz.utc) in etp, is_(False))

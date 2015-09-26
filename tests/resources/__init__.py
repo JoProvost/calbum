@@ -16,6 +16,7 @@ import os
 import hashlib
 import shutil
 import tempfile
+
 import yaml
 
 
@@ -25,9 +26,9 @@ def file_path(file_name):
 
 def copytree():
     tmp_folder = tempfile.mkdtemp()
-    path = os.path.join(tmp_folder, 'timeline')
-    shutil.copytree(os.path.dirname(__file__), path)
-    return path
+    inbox_path = os.path.join(tmp_folder, 'inbox')
+    shutil.copytree(os.path.dirname(__file__), inbox_path)
+    return tmp_folder, inbox_path
 
 
 def md5sum(filename):

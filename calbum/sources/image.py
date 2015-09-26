@@ -38,11 +38,13 @@ class ExifPicture(Picture):
     def timestamp(self):
         exif = self.exif()
 
-        exif_timestamp = next((
+        d = next((
             datetime.strptime(str(exif[tag]), self.exif_datetime_format)
             for tag in self.timestamp_tags if tag in exif), None)
+        if d and (d.tzinfo is None or d.tzinfo.utcoffset(d) is None):
+            d = d.replace(tzinfo=self.time_zone)
 
-        return exif_timestamp or super(ExifPicture, self).timestamp()
+        return d or super(ExifPicture, self).timestamp()
 
     def location(self):
         raise NotImplemented()

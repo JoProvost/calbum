@@ -19,28 +19,27 @@ from calbum.sources import image
 class CalendarAlbumFilter(PictureFilter):
     album_factory = image.ExifAlbum
 
-    def __init__(self, albums_path, events):
-        self.events = events
+    def __init__(self, albums_path, events, save_events):
+        self.events = list(events)
         self.albums_path = albums_path
+        self.save_events = save_events
  
     def albums_for(self, picture):
         for event in self.events:
             if picture.timestamp() in event.time_period():
-                yield self.album_factory.from_event(event, self.albums_path)
+                yield (self.album_factory.from_event(event, self.albums_path),
+                       event)
 
     def move_picture(self, picture):
-        album = next(self.albums_for(picture), None)
+        album, event = next(self.albums_for(picture), (None, None))
         if album:
             album.timeline().move_picture(picture)
+            if self.save_events:
+                event.save_to(album.path())
 
     def link_picture(self, picture):
-        for album in self.albums_for(picture):
+        for album, event in self.albums_for(picture):
             album.timeline().link_picture(picture)
+            if self.save_events:
+                event.save_to(album.path())
 
-
-def link_in_albums(inbox_path, albums_path, calendar_url):
-    pictures = image.get_pictures_from_path(inbox_path)
-    filter = CalendarAlbumFilter(albums_path, calendar_url)
-
-    for picture in pictures:
-        filter.link_picture(picture)

@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import argparse
+import sys
+from dateutil.tz import gettz
 
-from calbum.core.model import TimeLine
+from calbum.core.model import TimeLine, Picture
 from calbum.filters import timeline, album
 from calbum.sources import image, calendar
 
 
-def main():
+def main(args=sys.argv[1:]):
     parser = argparse.ArgumentParser(
         prog='calbum',
         add_help=True,
@@ -51,17 +53,27 @@ def main():
                         help='The format to use for timestamps.',
                         default=TimeLine.pictures_path_format)
 
-    args = vars(parser.parse_args())
+    parser.add_argument('--save-events',
+                        help='Keep the calendar event in the album.',
+                        action='store_true')
 
-    TimeLine.pictures_path_format = args['date_format']
+    parser.add_argument('--time-zone',
+                        help='Keep the calendar event in the album.')
 
-    filters = [timeline.TimelineFilter(args['timeline']).move_picture]
-    if args['calendar']:
-        events = calendar.get_events_from_url(url=args['calendar'])
+    settings = vars(parser.parse_args(args))
+
+    TimeLine.pictures_path_format = settings['date_format']
+    Picture.time_zone = gettz(settings['time_zone'])
+
+    filters = [timeline.TimelineFilter(settings['timeline']).move_picture]
+    if settings['calendar']:
+        events = calendar.CalendarEvent.load_from_url(url=settings['calendar'])
         filters.append(album.CalendarAlbumFilter(
-            albums_path=args['album'],
-            events=events).link_picture)
+            albums_path=settings['album'],
+            events=events,
+            save_events=settings['save_events']
+        ).link_picture)
 
-    for picture in image.get_pictures_from_path(args['inbox']):
+    for picture in image.get_pictures_from_path(settings['inbox']):
         for action in filters:
             action(picture)
