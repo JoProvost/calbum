@@ -18,6 +18,11 @@ from fnmatch import fnmatch
 import os
 from dateutil import tz
 
+file_types = (
+    '.jpg',
+    '.jpeg'
+)
+
 
 class FileSystemElement(object):
 
@@ -61,7 +66,7 @@ class PicturesCollection(FileSystemElement):
     def __iter__(self):
         for sub_path, subdirs, files in os.walk(self.path()):
             for name in files:
-                if fnmatch(name, '*.jpg') or fnmatch(name, '*.jpeg'):
+                if name.lower().endswith(file_types):
                     yield self.pictures_factory(os.path.join(sub_path, name))
 
 
