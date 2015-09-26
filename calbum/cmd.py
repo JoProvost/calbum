@@ -25,7 +25,11 @@ def main(args=sys.argv[1:]):
     parser = argparse.ArgumentParser(
         prog='calbum',
         add_help=True,
-        description='Calendar-based photo organiser (only timeline for now).')
+        description='calbum is an unattended calendar-based photo organiser. '
+                    'It is meant to allow easy management of pictures based '
+                    'on their location, date and calendar events without '
+                    'the need of a database or a special browser to retrieve '
+                    'them.')
 
     parser.add_argument('--inbox',
                         help='The path of the inbox directory. '
@@ -51,6 +55,7 @@ def main(args=sys.argv[1:]):
 
     parser.add_argument('--date-format',
                         help='The format to use for timestamps.',
+                        metavar='format',
                         default=TimeLine.pictures_path_format)
 
     parser.add_argument('--save-events',
@@ -58,7 +63,8 @@ def main(args=sys.argv[1:]):
                         action='store_true')
 
     parser.add_argument('--time-zone',
-                        help='Keep the calendar event in the album.')
+                        metavar='tz',
+                        help='Pictures timezone (default to local time).')
 
     settings = vars(parser.parse_args(args))
 
