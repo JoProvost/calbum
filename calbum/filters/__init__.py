@@ -13,10 +13,10 @@
 # limitations under the License.
 
 
-class PictureFilter(object):
+class MediaFilter(object):
 
-    def move_picture(self, picture):
+    def move(self, media):
         raise NotImplementedError()
 
-    def link_picture(self, picture):
+    def link(self, media):
         raise NotImplementedError()

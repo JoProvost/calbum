@@ -14,14 +14,19 @@
 
 
 from datetime import datetime
-from fnmatch import fnmatch
 import os
 from dateutil import tz
 
-file_types = (
-    '.jpg',
-    '.jpeg'
-)
+
+class MediaFactory(object):
+
+    def __init__(self, *factories):
+        self.factories = factories
+
+    def __call__(self, path):
+        return next((
+            f(path) for f in self.factories
+            if path.lower().endswith(f.file_types)), None)
 
 
 class FileSystemElement(object):
@@ -46,7 +51,8 @@ class FileSystemElement(object):
 
 
 # noinspection PyAbstractClass
-class Picture(FileSystemElement):
+class Media(FileSystemElement):
+    file_types = ()
     time_zone = tz.gettz()
 
     def location(self):
@@ -58,37 +64,49 @@ class Picture(FileSystemElement):
             tz=self.time_zone
         )
 
+    def move_to(self, path):
+        if not path.lower().endswith(self.file_types) and self.file_types:
+            path = path + self.file_types[0]
+        super(Media, self).move_to(path=path)
+
+    def link_to(self, path):
+        if not path.lower().endswith(self.file_types) and self.file_types:
+            path = path + self.file_types[0]
+        super(Media, self).link_to(path=path)
+
+
 
 # noinspection PyAbstractClass
-class PicturesCollection(FileSystemElement):
-    pictures_factory = Picture
+class MediaCollection(FileSystemElement):
+    media_factory = Media
 
     def __iter__(self):
         for sub_path, subdirs, files in os.walk(self.path()):
             for name in files:
-                if name.lower().endswith(file_types):
-                    yield self.pictures_factory(os.path.join(sub_path, name))
+                media = self.media_factory(os.path.join(sub_path, name))
+                if media is not None:
+                    yield media
 
 
 # noinspection PyAbstractClass
-class TimeLine(PicturesCollection):
-    pictures_path_format = "%Y/%Y-%m/%Y-%m-%d-%H-%M-%S.jpeg"
+class TimeLine(MediaCollection):
+    media_path_format = "%Y/%Y-%m/%Y-%m-%d-%H-%M-%S"
 
-    def link_picture(self, picture):
+    def link(self, media):
         new_path = os.path.join(
             self.path(),
-            picture.timestamp().strftime(self.pictures_path_format))
-        picture.link_to(new_path)
+            media.timestamp().strftime(self.media_path_format))
+        media.link_to(new_path)
 
-    def move_picture(self, picture):
+    def move(self, media):
         new_path = os.path.join(
             self.path(),
-            picture.timestamp().strftime(self.pictures_path_format))
-        picture.move_to(new_path)
+            media.timestamp().strftime(self.media_path_format))
+        media.move_to(new_path)
 
     def organize(self):
         for picture in self:
-            self.move_picture(picture)
+            self.move(picture)
 
 
 # noinspection PyAbstractClass

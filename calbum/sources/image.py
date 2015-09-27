@@ -16,10 +16,11 @@ from datetime import datetime
 
 import exifread
 
-from calbum.core.model import Picture, TimeLine, PicturesCollection, Album
+from calbum.core.model import Media
 
 
-class ExifPicture(Picture):
+class ExifPicture(Media):
+    file_types = ()
 
     exif_datetime_format = '%Y:%m:%d %H:%M:%S'
     timestamp_tags = (
@@ -50,25 +51,9 @@ class ExifPicture(Picture):
         raise NotImplemented()
 
 
-class ExifPicturesCollection(PicturesCollection):
-    pictures_factory = ExifPicture
+class JpegPicture(ExifPicture):
+    file_types = ('.jpeg', '.jpg')
 
 
-class ExifTimeLine(TimeLine, ExifPicturesCollection):
-    pass
-
-
-class ExifAlbum(Album):
-    timeline_factory = ExifTimeLine
-
-
-def get_pictures_from_path(path):
-    return iter(ExifPicturesCollection(path))
-
-
-def get_albums_from_path(path):
-    raise NotImplementedError()
-
-
-def get_time_lines_from_path(path):
-    raise NotImplementedError()
+class TiffPicture(ExifPicture):
+    file_types = ('.tiff', '.tif')

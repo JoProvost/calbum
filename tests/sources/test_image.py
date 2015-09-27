@@ -18,22 +18,23 @@ import unittest
 
 from dateutil import tz
 from hamcrest import assert_that, is_
+from calbum.core.model import TimeLine
 
-from calbum.sources.image import ExifTimeLine, ExifPicture
+from calbum.sources.image import JpegPicture
 from tests import resources
 
 
 class TestExifPicture(unittest.TestCase):
     def test_exif(self):
         assert_that(
-            ExifPicture(resources.file_path('image-01.jpeg')).timestamp(),
+            JpegPicture(resources.file_path('image-01.jpeg')).timestamp(),
             is_(datetime(2012, 5, 1, 1, 0, 0, tzinfo=tz.gettz())))
 
 
 class TestExifTimeLine(unittest.TestCase):
     def test_timeline_organize_pictures(self):
         _, inbox_path = resources.copytree()
-        timeline = ExifTimeLine(inbox_path)
+        timeline = TimeLine(inbox_path)
 
         timeline.organize()
 

@@ -18,7 +18,7 @@ import unittest
 from hamcrest import assert_that, is_
 
 from calbum import cmd
-from calbum.sources.image import ExifPicturesCollection
+from calbum.core.model import MediaCollection
 from tests import resources
 
 
@@ -35,7 +35,7 @@ class TestMain(unittest.TestCase):
             '--save-events'
         ])
 
-        timeline = ExifPicturesCollection(timeline_path)
+        timeline = MediaCollection(timeline_path)
         pictures = list(timeline)
 
         assert_that(len(pictures), is_(len(resources.files)))

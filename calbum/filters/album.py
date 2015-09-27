@@ -12,34 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from calbum.filters import PictureFilter
-from calbum.sources import image
+from calbum.core import model
+from calbum.filters import MediaFilter
 
 
-class CalendarAlbumFilter(PictureFilter):
-    album_factory = image.ExifAlbum
+class CalendarAlbumFilter(MediaFilter):
 
     def __init__(self, albums_path, events, save_events):
         self.events = list(events)
         self.albums_path = albums_path
         self.save_events = save_events
  
-    def albums_for(self, picture):
+    def albums_for(self, media):
         for event in self.events:
-            if picture.timestamp() in event.time_period():
-                yield (self.album_factory.from_event(event, self.albums_path),
+            if media.timestamp() in event.time_period():
+                yield (model.Album.from_event(event, self.albums_path),
                        event)
 
-    def move_picture(self, picture):
-        album, event = next(self.albums_for(picture), (None, None))
+    def move(self, media):
+        album, event = next(self.albums_for(media), (None, None))
         if album:
-            album.timeline().move_picture(picture)
+            album.timeline().move(media)
             if self.save_events:
                 event.save_to(album.path())
 
-    def link_picture(self, picture):
-        for album, event in self.albums_for(picture):
-            album.timeline().link_picture(picture)
+    def link(self, media):
+        for album, event in self.albums_for(media):
+            album.timeline().link(media)
             if self.save_events:
                 event.save_to(album.path())
 

@@ -12,26 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from calbum.filters import PictureFilter
-from calbum.sources import image
+from calbum.core import model
+from calbum.filters import MediaFilter
 
 
-class TimelineFilter(PictureFilter):
-    timeline_factory = image.ExifTimeLine
+class TimelineFilter(MediaFilter):
 
     def __init__(self, timeline_path):
-        self.timeline = self.timeline_factory(timeline_path)
+        self.timeline = model.TimeLine(timeline_path)
 
-    def move_picture(self, picture):
-        self.timeline.move_picture(picture)
+    def move(self, media):
+        self.timeline.move(media)
 
-    def link_picture(self, picture):
-        self.timeline.link_picture(picture)
+    def link(self, media):
+        self.timeline.link(media)
 
-
-def move_in_timeline(inbox_path, timeline_path):
-    pictures = image.get_pictures_from_path(inbox_path)
-    filter = TimelineFilter(timeline_path)
-
-    for picture in pictures:
-        filter.move_picture(picture)

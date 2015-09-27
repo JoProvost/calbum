@@ -16,10 +16,14 @@ import argparse
 import sys
 from dateutil.tz import gettz
 
-from calbum.core.model import TimeLine, Picture
+from calbum.core import model
 from calbum.filters import timeline, album
 from calbum.sources import image, calendar
 
+model.MediaCollection.media_factory = model.MediaFactory(
+    image.JpegPicture,
+    image.TiffPicture,
+)
 
 def main(args=sys.argv[1:]):
     parser = argparse.ArgumentParser(
@@ -56,7 +60,7 @@ def main(args=sys.argv[1:]):
     parser.add_argument('--date-format',
                         help='The format to use for timestamps.',
                         metavar='format',
-                        default=TimeLine.pictures_path_format)
+                        default=model.TimeLine.media_path_format)
 
     parser.add_argument('--save-events',
                         help='Keep the calendar event in the album.',
@@ -68,18 +72,18 @@ def main(args=sys.argv[1:]):
 
     settings = vars(parser.parse_args(args))
 
-    TimeLine.pictures_path_format = settings['date_format']
-    Picture.time_zone = gettz(settings['time_zone'])
+    model.TimeLine.media_path_format = settings['date_format']
+    model.Media.time_zone = gettz(settings['time_zone'])
 
-    filters = [timeline.TimelineFilter(settings['timeline']).move_picture]
+    filters = [timeline.TimelineFilter(settings['timeline']).move]
     if settings['calendar']:
         events = calendar.CalendarEvent.load_from_url(url=settings['calendar'])
         filters.append(album.CalendarAlbumFilter(
             albums_path=settings['album'],
             events=events,
             save_events=settings['save_events']
-        ).link_picture)
+        ).link)
 
-    for picture in image.get_pictures_from_path(settings['inbox']):
+    for picture in model.MediaCollection(settings['inbox']):
         for action in filters:
             action(picture)
