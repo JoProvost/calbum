@@ -19,7 +19,7 @@ from dateutil.tz import gettz
 from progress.bar import ChargingBar
 
 from calbum.core import model
-from calbum.filters import timeline, album
+from calbum.filters import timeline, album, NoopMediaFilter
 from calbum.sources import image, calendar, exiftool
 
 model.MediaCollection.media_factory = model.MediaFactory(
@@ -38,6 +38,10 @@ def main(args=sys.argv[1:]):
                     'on their location, date and calendar events without '
                     'the need of a database or a special browser to retrieve '
                     'them.')
+
+    parser.add_argument('--link-only',
+                        help='Keep files where they are in the inbox folder.',
+                        action='store_true')
 
     parser.add_argument('--inbox',
                         help='The path of the inbox directory. '
@@ -76,20 +80,29 @@ def main(args=sys.argv[1:]):
 
     settings = vars(parser.parse_args(args))
 
+    # Configure data model
     model.TimeLine.media_path_format = settings['date_format']
     model.Media.time_zone = gettz(settings['time_zone'])
 
-    filters = [timeline.TimelineFilter(settings['timeline']).move]
+    # Create filters
+    timeline_filter = timeline.TimelineFilter(settings['timeline'])
+    album_filter = NoopMediaFilter()
     if settings['calendar']:
         events = calendar.CalendarEvent.load_from_url(url=settings['calendar'])
-        filters.append(album.CalendarAlbumFilter(
+        album_filter = album.CalendarAlbumFilter(
             albums_path=settings['album'],
             events=events,
             save_events=settings['save_events']
-        ).link)
+        )
 
+    filter_actions = [
+        timeline_filter.link if settings['link_only'] else timeline_filter.move,
+        album_filter.link
+    ]
+
+    # Perform actions
     suffix = '%(index)d/%(max)d [eta: %(eta)ds]'
     bar = ChargingBar('Processing inbox:', suffix=suffix)
     for picture in bar.iter(list(model.MediaCollection(settings['inbox']))):
-        for action in filters:
+        for action in filter_actions:
             action(picture)

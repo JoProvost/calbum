@@ -20,3 +20,12 @@ class MediaFilter(object):
 
     def link(self, media):
         raise NotImplementedError()
+
+
+class NoopMediaFilter(object):
+
+    def move(self, media):
+        pass
+
+    def link(self, media):
+        pass

@@ -20,17 +20,17 @@ be deleted, pictures are kept in the timeline folder.
 Usage
 -----
 
-    # calbum --help
-    usage: calbum [-h] [--inbox path] [--timeline path] [--album path]
-                  [--calendar url] [--date-format format] [--save-events]
-                  [--time-zone tz]
-
+    usage: calbum [-h] [--link-only] [--inbox path] [--timeline path]
+                  [--album path] [--calendar url] [--date-format format]
+                  [--save-events] [--time-zone tz]
+    
     calbum is an unattended calendar-based photo organiser. It is meant to allow
     easy management of pictures based on their location, date and calendar events
     without the need of a database or a special browser to retrieve them.
 
     optional arguments:
       -h, --help            show this help message and exit
+      --link-only           Keep files where they are in the inbox folder.
       --inbox path          The path of the inbox directory. (default: ./inbox)
       --timeline path       The path of the timeline directory. (default:
                             ./timeline)
