@@ -1,8 +1,15 @@
 language: python
 python:
-- '2.7'
+  - '2.7'
+
+addons:
+  apt:
+    packages:
+    - libimage-exiftool-perl
+
 install:
-- pip install tox
+  - pip install tox
+
 script: tox -r
 deploy:
   provider: pypi

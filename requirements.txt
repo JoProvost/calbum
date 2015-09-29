@@ -2,3 +2,4 @@ ExifRead
 PyYAML
 icalendar
 pbr
+progress

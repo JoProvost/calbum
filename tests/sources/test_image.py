@@ -41,6 +41,10 @@ class TestExifTimeLine(unittest.TestCase):
         for name, file_details in resources.files.iteritems():
             file_path = os.path.join(inbox_path, file_details['expected_path'])
             assert_that(
+                os.path.exists(file_path),
+                is_(True),
+                'File is missing: {} -> {}'.format(name, file_path))
+            assert_that(
                 resources.md5sum(file_path),
                 is_(file_details['md5sum']),
                 'wrong md5sum for {} at {}'.format(name, file_path)

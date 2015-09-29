@@ -12,17 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
-
 import exifread
 
-from calbum.core.model import Media
+from calbum.core.model import Media, string_to_datetime
 
 
 class ExifPicture(Media):
-    file_types = ()
+    file_extensions = ()
 
-    exif_datetime_format = '%Y:%m:%d %H:%M:%S'
     timestamp_tags = (
         'Image DateTime',
         'EXIF DateTimeOriginal',
@@ -37,10 +34,16 @@ class ExifPicture(Media):
         return self._exif
 
     def timestamp(self):
+        """
+        Return the creation timestamp of the media as defined in the EXIF
+        metadata ('Image DateTime', 'EXIF DateTimeOriginal',
+        'EXIF DateTimeDigitized', 'DateTime')
+        :rtype: datetime
+        """
         exif = self.exif()
 
         d = next((
-            datetime.strptime(str(exif[tag]), self.exif_datetime_format)
+            string_to_datetime(str(exif[tag]), self.time_zone)
             for tag in self.timestamp_tags if tag in exif), None)
         if d and (d.tzinfo is None or d.tzinfo.utcoffset(d) is None):
             d = d.replace(tzinfo=self.time_zone)
@@ -52,8 +55,8 @@ class ExifPicture(Media):
 
 
 class JpegPicture(ExifPicture):
-    file_types = ('.jpeg', '.jpg')
+    file_extensions = ('.jpeg', '.jpg')
 
 
 class TiffPicture(ExifPicture):
-    file_types = ('.tiff', '.tif')
+    file_extensions = ('.tiff', '.tif')

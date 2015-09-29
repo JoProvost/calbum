@@ -54,6 +54,10 @@ class TestMain(unittest.TestCase):
                     album_path, file_details['event_name'],
                     file_details['expected_path'])
                 assert_that(
+                    os.path.exists(file_path),
+                    is_(True),
+                    'File is missing: {} -> {}'.format(name, file_path))
+                assert_that(
                     resources.md5sum(file_path),
                     is_(file_details['md5sum']),
                     'wrong md5sum for {} at {}'.format(name, file_path)

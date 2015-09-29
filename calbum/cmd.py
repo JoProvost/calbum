@@ -16,13 +16,17 @@ import argparse
 import sys
 from dateutil.tz import gettz
 
+from progress.bar import ChargingBar
+
 from calbum.core import model
 from calbum.filters import timeline, album
-from calbum.sources import image, calendar
+from calbum.sources import image, calendar, exiftool
 
 model.MediaCollection.media_factory = model.MediaFactory(
     image.JpegPicture,
     image.TiffPicture,
+    exiftool.VideoMP4Media,
+    exiftool.Video3GPMedia,
 )
 
 def main(args=sys.argv[1:]):
@@ -84,6 +88,8 @@ def main(args=sys.argv[1:]):
             save_events=settings['save_events']
         ).link)
 
-    for picture in model.MediaCollection(settings['inbox']):
+    suffix = '%(index)d/%(max)d [eta: %(eta)ds]'
+    bar = ChargingBar('Processing inbox:', suffix=suffix)
+    for picture in bar.iter(list(model.MediaCollection(settings['inbox']))):
         for action in filters:
             action(picture)

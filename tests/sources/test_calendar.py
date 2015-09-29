@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from hamcrest import assert_that, is_
 from icalendar import Event
@@ -32,8 +32,8 @@ CREATED:20151010T100000Z
 UID:123456
 END:VEVENT"""))
 
-        assert_that(etp.begin(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
-        assert_that(etp.end(), is_(datetime(2015, 10, 10, 12, tzinfo=pytz.utc)))
+        assert_that(etp.start(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
+        assert_that(etp.duration(), is_(timedelta(hours=2)))
 
         assert_that(datetime(2015, 10, 10, 11, tzinfo=pytz.utc) in etp, is_(True))
 
@@ -50,8 +50,8 @@ RRULE:FREQ=DAILY;COUNT=2
 UID:123456
 END:VEVENT"""))
 
-        assert_that(etp.begin(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
-        assert_that(etp.end(), is_(datetime(2015, 10, 10, 12, tzinfo=pytz.utc)))
+        assert_that(etp.start(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
+        assert_that(etp.duration(), is_(timedelta(hours=2)))
 
         assert_that(datetime(2015, 10, 10, 11, tzinfo=pytz.utc) in etp, is_(True))
         assert_that(datetime(2015, 10, 10, 9, tzinfo=pytz.utc) in etp, is_(False))
@@ -75,8 +75,8 @@ EXDATE:20151013T100000Z
 UID:123456
 END:VEVENT"""))
 
-        assert_that(etp.begin(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
-        assert_that(etp.end(), is_(datetime(2015, 10, 10, 12, tzinfo=pytz.utc)))
+        assert_that(etp.start(), is_(datetime(2015, 10, 10, 10, tzinfo=pytz.utc)))
+        assert_that(etp.duration(), is_(timedelta(hours=2)))
 
         assert_that(datetime(2015, 10, 10, 11, tzinfo=pytz.utc) in etp, is_(True))
         assert_that(datetime(2015, 10, 10, 9, tzinfo=pytz.utc) in etp, is_(False))
@@ -101,8 +101,8 @@ CREATED:20150922T191411Z
 LAST-MODIFIED:20150922T191823Z
 END:VEVENT"""))
 
-        assert_that(etp.begin(), is_(date(2015, 11, 13)))
-        assert_that(etp.end(), is_(date(2015, 11, 14)))
+        assert_that(etp.start(), is_(date(2015, 11, 13)))
+        assert_that(etp.duration(), is_(timedelta(days=1)))
 
         assert_that(datetime(2015, 11, 12, 12, tzinfo=pytz.utc) in etp, is_(False))
         assert_that(datetime(2015, 11, 13, 12, tzinfo=pytz.utc) in etp, is_(True))
@@ -120,8 +120,8 @@ LAST-MODIFIED:20150706T153006Z
 RRULE:FREQ=WEEKLY;UNTIL=20150827T223000Z;BYDAY=TU,TH;WKST=SU
 END:VEVENT"""))
 
-        assert_that(etp.begin(), is_(datetime(2015, 06, 02, 18, 30, tzinfo=pytz.timezone('Etc/GMT+4'))))
-        assert_that(etp.end(), is_(datetime(2015, 06, 02, 19, 30, tzinfo=pytz.timezone('Etc/GMT+4'))))
+        assert_that(etp.start(), is_(datetime(2015, 06, 02, 18, 30, tzinfo=pytz.timezone('Etc/GMT+4'))))
+        assert_that(etp.duration(), is_(timedelta(hours=1)))
 
         assert_that(datetime(2015, 11, 12, 12, tzinfo=pytz.timezone('Etc/GMT+4')) in etp, is_(False))
 
@@ -136,8 +136,8 @@ LAST-MODIFIED:20150706T153006Z
 RRULE:FREQ=YEARLY
 END:VEVENT"""))
 
-        assert_that(etp.begin(), is_(date(2012, 07, 02)))
-        assert_that(etp.end(), is_(date(2012, 07, 03)))
+        assert_that(etp.start(), is_(date(2012, 07, 02)))
+        assert_that(etp.duration(), is_(timedelta(days=1)))
 
         assert_that(datetime(2012, 07, 02, 12) in etp, is_(True))
 
@@ -150,5 +150,5 @@ CREATED:20130903T183447Z
 LAST-MODIFIED:20130916T165029Z
 END:VEVENT"""))
 
-        assert_that(etp.begin(), is_(datetime(2013, 9, 21, 23, tzinfo=pytz.utc)))
+        assert_that(etp.start(), is_(datetime(2013, 9, 21, 23, tzinfo=pytz.utc)))
         assert_that(datetime(2013, 9, 21, 23, tzinfo=pytz.utc) in etp, is_(False))

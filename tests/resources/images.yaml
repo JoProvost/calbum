@@ -1,37 +1,55 @@
 ---
 image-01.jpeg:
-  md5sum: 520cc0302b31449e375760b3a44f07b1
+  md5sum: f539b656c7748bb996c6564edf7f9196
   expected_path: 2012/2012-05/2012-05-01-01-00-00.jpeg
   date_time: 2012:05:01 01:00:00
   event_name: First event
 
 image-02.jpg:
-  md5sum: ba2ea285d30e577ec53adedce7709745
+  md5sum: 16a083b59b3f13962ebfcd21679d25bd
   expected_path: 2012/2012-05/2012-05-02-02-00-00.jpeg
   date_time: 2012:05:02 02:00:00
   event_name: Second event
 
 image-03.tif:
-  md5sum: 8a8a3d5dbac775f16f5bbcfa57546ca0
+  md5sum: 18cb2310f1a57453ec0a59d5ffbe8e3a
   expected_path: 2013/2013-02/2013-02-01-03-00-00.tiff
   date_time: 2013:02:01 03:00:00
   event_name: 
 
 image-04.jpeg:
-  md5sum: ae7ebcf0c0cd1fbe942991f90475f3b2
+  md5sum: eada4d329026be61e0c8ab8b330b7c6d
   expected_path: 2013/2013-03/2013-03-01-04-00-00.jpeg
   date_time: 2013:03:01 04:00:00
   event_name: 
 
 image-05.jpeg:
-  md5sum: cb3f4a7c1b9a2340a464770f1a685626
+  md5sum: fbe4c9f0a926baaaec82b9e74eeab289
   expected_path: 2012/2012-05/2012-05-01-05-00-00.jpeg
   date_time: 2012:05:01 05:00:00
   event_name: First event
 
 image-06.JPG:
-  md5sum: 8b57bfbee5d20913e30e3ae6eeff06bd
+  md5sum: b664a3548c66bf6674d55dc6f7626627
   expected_path: 2015/2015-11/2015-11-23-06-00-00.jpeg
   date_time: 2015:11:23 06:00:00
   event_name: Last event
+
+IMG_20130302_070000.jpeg:
+  md5sum: 08fcd6de4af1fd9051c31acae7d278d2
+  expected_path: 2013/2013-03/2013-03-02-07-00-00.jpeg
+  date_time: 
+  event_name: 
+
+video-01.mp4:
+  md5sum: c449fe652bd9987767092d5205f2cf09
+  expected_path: 2014/2014-01/2014-01-01-19-30-00.mp4
+  date_time: 2014-01-01 19:30:00
+  event_name: 
+
+video-02.3gp:
+  md5sum: 890c51380bbb389cd575a60b3c1f62aa
+  expected_path: 2014/2014-02/2014-02-02-19-30-00.3gp
+  date_time: 2014-02-02 19:30:00
+  event_name: 
 
