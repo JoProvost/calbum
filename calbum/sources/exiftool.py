@@ -11,19 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 
 import subprocess
 
 from calbum.core.model import Media, string_to_datetime
 
+exiftool_path = 'exiftool'
+
 
 class ExifToolMedia(Media):
     file_extensions = ()
 
-    exiftool_path = 'exiftool'
     timestamp_tags = (
         'Creation Date',
-        'Date/Time Original'
+        'Date/Time Original',
         'Track Create Date',
         'Media Create Date',
         'Create Date',
@@ -34,11 +36,17 @@ class ExifToolMedia(Media):
             self._exif = {}
             try:
                 for line in subprocess.check_output(
-                        ["exiftool", self.path()]).splitlines():
+                        [exiftool_path, self.path()]).splitlines():
                     key, value = line.split(':', 1)
                     self._exif[key.strip()] = value.strip()
-            except subprocess.CalledProcessError:
-                pass
+            except OSError as e:
+                logging.warning('Metadata processing with {} '
+                                'failed for "{}": {}'.format(
+                    exiftool_path, self.path(), repr(e)))
+            except subprocess.CalledProcessError as e:
+                logging.warning('WARNING: Metadata processing with {} '
+                                'failed for "{}": {}'.format(
+                    exiftool_path, self.path(), repr(e)))
         return self._exif
 
     def timestamp(self):
