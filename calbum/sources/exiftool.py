@@ -40,11 +40,11 @@ class ExifToolMedia(Media):
                     key, value = line.split(':', 1)
                     self._exif[key.strip()] = value.strip()
             except OSError as e:
-                logging.warning('Metadata processing with {} '
+                logging.warning('Metadata processing with "{}" '
                                 'failed for "{}": {}'.format(
                     exiftool_path, self.path(), repr(e)))
             except subprocess.CalledProcessError as e:
-                logging.warning('WARNING: Metadata processing with {} '
+                logging.warning('Metadata processing with "{}" '
                                 'failed for "{}": {}'.format(
                     exiftool_path, self.path(), repr(e)))
         return self._exif
@@ -61,9 +61,15 @@ class ExifToolMedia(Media):
             d = next((
                 string_to_datetime(str(exif[tag]), self.time_zone)
                 for tag in self.timestamp_tags if tag in exif), None)
-            if d and (d.tzinfo is None or d.tzinfo.utcoffset(d) is None):
-                d = d.replace(tzinfo=self.time_zone)
             if d:
+                if d.tzinfo is None or d.tzinfo.utcoffset(d) is None:
+                    d = d.replace(tzinfo=self.time_zone)
+                if d.year < 1970:
+                    logging.info('Patched incorrect time offset, for {} '
+                                 'see https://trac.ffmpeg.org/ticket/1471'
+                                 .format(self.path()))
+                    # See https://trac.ffmpeg.org/ticket/1471
+                    d = d.replace(year=d.year+66)
                 return d
         except ValueError:
             pass
