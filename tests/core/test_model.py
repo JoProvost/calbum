@@ -12,9 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 import unittest
+
+from dateutil import tz
 from hamcrest import assert_that, is_
 import mock
+
 from calbum.core import model
 
 
@@ -128,6 +132,92 @@ class TestFileSystemElement(unittest.TestCase):
         assert_that(fse.file_extension(), is_('.pdf'))
 
 
+class TestGetDestinationPath(unittest.TestCase):
+
+    @mock.patch('os.path.exists')
+    def test_get_destination_path_file_doesnt_exist(self, exists):
+        exists.return_value = False
+        assert_that(
+            model.get_destination_path(
+                source='origin/path.jpg', dest='dest/path', extension='.jpg'),
+            is_('dest/path.jpg'))
+        exists.assert_called_with('dest/path.jpg')
+
+    @mock.patch('filecmp.cmp')
+    @mock.patch('os.path.samefile')
+    @mock.patch('os.path.exists')
+    def test_get_destination_path_file_exist_with_different_file(self, exists, samefile, filecmp):
+        samefile.return_value = False
+        filecmp.return_value = False
+        exists.side_effect = [
+            True,
+            False
+        ]
+        assert_that(
+            model.get_destination_path(
+                source='origin/path.jpg', dest='dest/path', extension='.jpg'),
+            is_('dest/path(1).jpg'))
+        exists.has_calls([
+            mock.call('dest/path.jpg'),
+            mock.call('dest/path(1).jpg'),
+        ])
+
+    @mock.patch('filecmp.cmp')
+    @mock.patch('os.path.samefile')
+    @mock.patch('os.path.exists')
+    def test_get_destination_path_file_exist_with_different_file_twice(self, exists, samefile, filecmp):
+        samefile.return_value = False
+        filecmp.return_value = False
+        exists.side_effect = [
+            True,
+            True,
+            False
+        ]
+        assert_that(
+            model.get_destination_path(
+                source='origin/path.jpg', dest='dest/path', extension='.jpg'),
+            is_('dest/path(2).jpg'))
+        exists.has_calls([
+            mock.call('dest/path.jpg'),
+            mock.call('dest/path(1).jpg'),
+            mock.call('dest/path(2).jpg'),
+        ])
+
+    @mock.patch('filecmp.cmp')
+    @mock.patch('os.path.samefile')
+    @mock.patch('os.path.exists')
+    def test_get_destination_path_file_exist_with_same_file_inode(self, exists, samefile, filecmp):
+        samefile.return_value = True
+        filecmp.return_value = False
+        exists.side_effect = [
+            True
+        ]
+        assert_that(
+            model.get_destination_path(
+                source='origin/path.jpg', dest='dest/path', extension='.jpg'),
+            is_('dest/path.jpg'))
+        exists.has_calls([
+            mock.call('dest/path.jpg'),
+        ])
+
+    @mock.patch('filecmp.cmp')
+    @mock.patch('os.path.samefile')
+    @mock.patch('os.path.exists')
+    def test_get_destination_path_file_exist_with_same_file_content(self, exists, samefile, filecmp):
+        samefile.return_value = False
+        filecmp.return_value = True
+        exists.side_effect = [
+            True
+        ]
+        assert_that(
+            model.get_destination_path(
+                source='origin/path.jpg', dest='dest/path', extension='.jpg'),
+            is_('dest/path.jpg'))
+        exists.has_calls([
+            mock.call('dest/path.jpg'),
+        ])
+
+
 class TestMedia(unittest.TestCase):
 
     def test_file_extension_based_on_path(self):
@@ -139,3 +229,9 @@ class TestMedia(unittest.TestCase):
             file_extensions = ('.gif', '.gifa')
         fse = FakeGifMedia('some/file/path.pdf')
         assert_that(fse.file_extension(), is_('.gif'))
+
+    def test_timestamp_based_on_filename(self):
+        media = model.Media('some/file/VID_20120501_224323.avi')
+        assert_that(
+            media.timestamp(),
+            is_(datetime(2012, 5, 1, 22, 43, 23, tzinfo=tz.gettz())))
