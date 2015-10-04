@@ -59,15 +59,18 @@ class FileSystemElement(object):
         file_extension method.
         :param path_prefix: the destination path without extension
         """
-        parent, name = os.path.split(path_prefix)
-        if parent and name and not os.path.exists(parent):
-            os.makedirs(parent)
         path = get_destination_path(
             source=self.path(),
             dest=path_prefix,
             extension=self.file_extension())
         if not os.path.exists(path):
-            os.link(self._path, path)
+            parent, _ = os.path.split(path_prefix)
+            if parent and not os.path.exists(parent):
+                os.makedirs(parent)
+            try:
+                os.link(self._path, path)
+            except IOError:
+                os.symlink(self._path, path)
 
     def path(self):
         """
