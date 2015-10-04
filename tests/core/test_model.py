@@ -124,7 +124,7 @@ class TestFileSystemElement(unittest.TestCase):
             ])
         makedirs.assert_called_with('dest')
         link.assert_called_with('origin/path.jpg', 'dest/path.jpg')
-        symlink.assert_called_with('origin/path.jpg', 'dest/path.jpg')
+        symlink.assert_called_with('../origin/path.jpg', 'dest/path.jpg')
         assert_that(remove.called, is_(False))
 
     def test_file_extension_based_on_path(self):

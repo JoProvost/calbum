@@ -59,18 +59,23 @@ class FileSystemElement(object):
         file_extension method.
         :param path_prefix: the destination path without extension
         """
-        path = get_destination_path(
+        dest_link_path = get_destination_path(
             source=self.path(),
             dest=path_prefix,
             extension=self.file_extension())
-        if not os.path.exists(path):
+        if not os.path.exists(dest_link_path):
             parent, _ = os.path.split(path_prefix)
             if parent and not os.path.exists(parent):
                 os.makedirs(parent)
             try:
-                os.link(self._path, path)
-            except OSError:
-                os.symlink(self._path, path)
+                os.link(self._path, dest_link_path)
+            except os.error:
+                relative_src_path = os.path.join(
+                    os.path.relpath(
+                        os.path.dirname(self._path),
+                        os.path.dirname(dest_link_path)),
+                    os.path.basename(dest_link_path))
+                os.symlink(relative_src_path, dest_link_path)
 
     def path(self):
         """
@@ -84,6 +89,16 @@ class FileSystemElement(object):
         """
         _, file_extension = os.path.splitext(self.path())
         return file_extension
+
+
+def file_exist_as_symlink(path):
+    """Test whether a path exists.  Returns False for broken symbolic links"""
+    try:
+        os.stat(path)
+    except os.error:
+        return False
+    return True
+
 
 
 class Location(object):
