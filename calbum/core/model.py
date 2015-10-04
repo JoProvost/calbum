@@ -69,7 +69,7 @@ class FileSystemElement(object):
                 os.makedirs(parent)
             try:
                 os.link(self._path, path)
-            except IOError:
+            except OSError:
                 os.symlink(self._path, path)
 
     def path(self):

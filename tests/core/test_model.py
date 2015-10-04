@@ -110,7 +110,7 @@ class TestFileSystemElement(unittest.TestCase):
     def test_link_to_make_symlink_on_error(self, get_destination_path, exists, remove, makedirs, link, symlink):
         get_destination_path.return_value = 'dest/path.jpg'
         exists.return_value = False
-        link.side_effect = IOError()
+        link.side_effect = OSError()
 
         fse = model.FileSystemElement('origin/path.jpg')
         fse.link_to('dest/path')
