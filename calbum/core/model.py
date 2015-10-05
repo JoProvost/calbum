@@ -15,7 +15,9 @@
 
 from datetime import datetime
 import filecmp
+import locale
 import os
+
 from dateutil import tz
 
 
@@ -33,7 +35,11 @@ class MediaFactory(object):
 class FileSystemElement(object):
 
     def __init__(self, path):
-        self._path = path
+        pref_enc = locale.getpreferredencoding()
+        if isinstance(path, unicode):
+            self._path = path
+        else:
+            self._path = path.decode(pref_enc)
 
     def move_to(self, path_prefix):
         """
@@ -74,7 +80,7 @@ class FileSystemElement(object):
                     os.path.relpath(
                         os.path.dirname(self._path),
                         os.path.dirname(dest_link_path)),
-                    os.path.basename(dest_link_path))
+                    os.path.basename(self._path))
                 os.symlink(relative_src_path, dest_link_path)
 
     def path(self):

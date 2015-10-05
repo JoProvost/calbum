@@ -108,23 +108,23 @@ class TestFileSystemElement(unittest.TestCase):
     @mock.patch('os.path.exists')
     @mock.patch('calbum.core.model.get_destination_path')
     def test_link_to_make_symlink_on_error(self, get_destination_path, exists, remove, makedirs, link, symlink):
-        get_destination_path.return_value = 'dest/path.jpg'
+        get_destination_path.return_value = 'dest/new_name.jpg'
         exists.return_value = False
         link.side_effect = OSError()
 
-        fse = model.FileSystemElement('origin/path.jpg')
-        fse.link_to('dest/path')
-        assert_that(fse.path(), is_('origin/path.jpg'))
+        fse = model.FileSystemElement('\xc3\x80 trier/origin/path.jpg')
+        fse.link_to('dest/new_name')
+        assert_that(fse.path(), is_(u'\xc0 trier/origin/path.jpg'))
 
         get_destination_path.assert_called_with(
-            source='origin/path.jpg', dest='dest/path', extension='.jpg')
+            source=u'\xc0 trier/origin/path.jpg', dest='dest/new_name', extension='.jpg')
         exists.assert_has_calls([
-            mock.call('dest/path.jpg'),
+            mock.call('dest/new_name.jpg'),
             mock.call('dest'),
             ])
         makedirs.assert_called_with('dest')
-        link.assert_called_with('origin/path.jpg', 'dest/path.jpg')
-        symlink.assert_called_with('../origin/path.jpg', 'dest/path.jpg')
+        link.assert_called_with(u'\xc0 trier/origin/path.jpg', 'dest/new_name.jpg')
+        symlink.assert_called_with(u'../\xc0 trier/origin/path.jpg', 'dest/new_name.jpg')
         assert_that(remove.called, is_(False))
 
     def test_file_extension_based_on_path(self):
